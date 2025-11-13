@@ -1,0 +1,12 @@
+# Entorno virtual
+.venv/
+# Archivos de compilación
+__pycache__/
+*.pyc
+# Logs
+logs/
+# Configuración local
+config.py
+# Archivos de build
+build/
+dist/
