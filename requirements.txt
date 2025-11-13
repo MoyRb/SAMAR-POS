@@ -1,0 +1,7 @@
+PySide6==6.10.0
+SQLAlchemy==2.0.30
+mysql-connector-python==9.0.0
+passlib[bcrypt]==1.7.4
+loguru==0.7.0
+reportlab==4.0.6
+pandas==2.2.2

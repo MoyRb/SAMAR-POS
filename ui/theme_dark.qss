@@ -1,0 +1,50 @@
+/* ui/theme_dark.qss */
+QWidget {
+    background-color: #0f172a;
+    color: #f1f5f9;
+    font-family: "Segoe UI", "Inter", sans-serif;
+    font-size: 14px;
+}
+
+QLineEdit {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 6px 8px;
+    color: #f1f5f9;
+}
+
+QPushButton {
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-weight: 600;
+}
+
+#btnPrimary {
+    background-color: #fb923c;
+    color: #0f172a;
+}
+
+#btnPrimary:hover {
+    background-color: #f97316;
+}
+
+#btnSecondary {
+    background-color: #1e293b;
+    color: #f1f5f9;
+    border: 1px solid #475569;
+}
+
+#btnSecondary:hover {
+    background-color: #334155;
+}
+
+QCheckBox {
+    color: #f1f5f9;
+}
+
+#logoTitle {
+    font-size: 22px;
+    font-weight: bold;
+    color: #fb923c;
+}
