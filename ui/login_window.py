@@ -7,6 +7,7 @@ from PySide6.QtCore import Qt
 from services.auth_service import AuthService
 from utils.db_session import get_session
 
+
 class LoginWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -69,10 +70,29 @@ class LoginWindow(QWidget):
         with get_session() as db:
             service = AuthService(db)
             user = service.autenticar(username, password)
+            if user:
+                nombre_usuario = user.nombre  # 👈 obtenemos el nombre mientras la sesión está abierta
+            else:
+                nombre_usuario = None
 
         if user:
-            QMessageBox.information(self, "Bienvenido", f"Acceso correcto: {user.nombre}")
-            # TODO: abrir ventana principal (main_window)
+            from ui.main_window import MainWindow
+
+            # Guardamos la información básica antes de cerrar la sesión
+            usuario_data = {
+                "id": user.id,
+                "nombre": user.nombre,
+                "rol_id": user.rol_id
+            }
+
+            QMessageBox.information(self, "Bienvenido", f"Acceso correcto: {usuario_data['nombre']}")
             self.close()
+
+            # Pasamos solo el diccionario, no el objeto ORM
+            self.main = MainWindow(usuario_data)
+            self.main.show()
+
         else:
             QMessageBox.critical(self, "Error", "Usuario o contraseña incorrectos.")
+
+

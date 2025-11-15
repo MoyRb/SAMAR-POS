@@ -1,0 +1,9 @@
+2025-11-15 16:00:06.553 | INFO     | utils.logger:log_event:19 - [LOGIN_FAIL] Usuario no encontrado: admin
+2025-11-15 16:00:55.464 | INFO     | utils.logger:log_event:19 - [LOGIN_FAIL] Usuario no encontrado: admin
+2025-11-15 16:01:35.859 | INFO     | utils.logger:log_event:19 - [LOGIN_FAIL] Usuario no encontrado: admin
+2025-11-15 16:12:17.632 | INFO     | utils.logger:log_event:19 - [LOGIN_FAIL] Contraseña incorrecta
+2025-11-15 16:12:43.955 | INFO     | utils.logger:log_event:19 - [LOGIN_FAIL] Contraseña incorrecta
+2025-11-15 16:18:00.257 | INFO     | utils.logger:log_event:19 - [LOGIN_OK] Acceso correcto
+2025-11-15 16:25:59.535 | INFO     | utils.logger:log_event:19 - [LOGIN_OK] Acceso correcto
+2025-11-15 16:29:16.619 | INFO     | utils.logger:log_event:19 - [LOGIN_OK] Acceso correcto
+2025-11-15 16:34:08.509 | INFO     | utils.logger:log_event:19 - [LOGIN_OK] Acceso correcto
