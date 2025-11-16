@@ -16,6 +16,7 @@ class AuthService:
             .filter(Usuario.username == username, Usuario.activo == True)
             .first()
         )
+
         if not user:
             log_event(None, "LOGIN_FAIL", f"Usuario no encontrado: {username}")
             return None
@@ -27,4 +28,15 @@ class AuthService:
 
         # Login exitoso
         log_event(user.id, "LOGIN_OK", "Acceso correcto")
-        return user
+
+        # Convertir a dict antes de devolverlo
+        user_data = {
+            "id": user.id,
+            "nombre": user.nombre,
+            "username": user.username,
+            "rol_id": user.rol_id,
+            "activo": user.activo
+        }
+
+
+        return user_data

@@ -67,32 +67,26 @@ class LoginWindow(QWidget):
             QMessageBox.warning(self, "Campos vacíos", "Ingresa usuario y contraseña.")
             return
 
+        # --- Autenticación ---
         with get_session() as db:
             service = AuthService(db)
-            user = service.autenticar(username, password)
-            if user:
-                nombre_usuario = user.nombre  # 👈 obtenemos el nombre mientras la sesión está abierta
-            else:
-                nombre_usuario = None
+            user = service.autenticar(username, password)  # user AHORA es un dict o None
 
         if user:
             from ui.main_window import MainWindow
 
-            # Guardamos la información básica antes de cerrar la sesión
+            # user ya es un dict, NO un objeto ORM
             usuario_data = {
-                "id": user.id,
-                "nombre": user.nombre,
-                "rol_id": user.rol_id
+                "id": user["id"],
+                "nombre": user["nombre"],
+                "rol_id": user["rol_id"],  # lo más cercano a tu 'rol'
             }
 
             QMessageBox.information(self, "Bienvenido", f"Acceso correcto: {usuario_data['nombre']}")
             self.close()
 
-            # Pasamos solo el diccionario, no el objeto ORM
             self.main = MainWindow(usuario_data)
             self.main.show()
 
         else:
             QMessageBox.critical(self, "Error", "Usuario o contraseña incorrectos.")
-
-
