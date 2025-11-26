@@ -7,6 +7,8 @@ from PySide6.QtCore import Qt
 from services.auth_service import AuthService
 from utils.db_session import get_session
 
+import ui.window_manager as wm  # <--- REFERENCIA GLOBAL
+
 
 class LoginWindow(QWidget):
     def __init__(self):
@@ -15,34 +17,28 @@ class LoginWindow(QWidget):
         self.setFixedSize(380, 320)
         self.setStyleSheet(open("ui/theme_dark.qss", "r", encoding="utf-8").read())
 
-        # Layout principal
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignCenter)
         layout.setContentsMargins(40, 20, 40, 20)
         layout.setSpacing(15)
 
-        # Título o logo
         titulo = QLabel("🍕 SAMAR-POS")
         titulo.setObjectName("logoTitle")
         titulo.setAlignment(Qt.AlignCenter)
         layout.addWidget(titulo)
 
-        # Campo de usuario
         self.input_user = QLineEdit()
         self.input_user.setPlaceholderText("Usuario o correo electrónico")
         layout.addWidget(self.input_user)
 
-        # Campo de contraseña
         self.input_pass = QLineEdit()
         self.input_pass.setPlaceholderText("Contraseña")
         self.input_pass.setEchoMode(QLineEdit.Password)
         layout.addWidget(self.input_pass)
 
-        # Recordarme
         self.remember_me = QCheckBox("Recordarme")
         layout.addWidget(self.remember_me)
 
-        # Botones
         btn_layout = QHBoxLayout()
         btn_layout.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
@@ -67,26 +63,24 @@ class LoginWindow(QWidget):
             QMessageBox.warning(self, "Campos vacíos", "Ingresa usuario y contraseña.")
             return
 
-        # --- Autenticación ---
         with get_session() as db:
             service = AuthService(db)
-            user = service.autenticar(username, password)  # user AHORA es un dict o None
+            user = service.autenticar(username, password)
+            if user:
+                usuario_data = {
+                    "id": user["id"],
+                    "nombre": user["nombre"],
+                    "rol_id": user["rol_id"],
+                }
+            else:
+                usuario_data = None
 
-        if user:
+        if usuario_data:
             from ui.main_window import MainWindow
 
-            # user ya es un dict, NO un objeto ORM
-            usuario_data = {
-                "id": user["id"],
-                "nombre": user["nombre"],
-                "rol_id": user["rol_id"],  # lo más cercano a tu 'rol'
-            }
+            wm.MAIN_WINDOW = MainWindow(usuario_data)
+            wm.MAIN_WINDOW.show()
 
-            QMessageBox.information(self, "Bienvenido", f"Acceso correcto: {usuario_data['nombre']}")
             self.close()
-
-            self.main = MainWindow(usuario_data)
-            self.main.show()
-
         else:
             QMessageBox.critical(self, "Error", "Usuario o contraseña incorrectos.")

@@ -1,8 +1,6 @@
-# models/producto.py
 from sqlalchemy import Column, BigInteger, String, DECIMAL, Boolean
-from sqlalchemy.orm import declarative_base
+from utils.database import Base   # <── USAR Base central
 
-Base = declarative_base()
 
 class Producto(Base):
     __tablename__ = "productos"

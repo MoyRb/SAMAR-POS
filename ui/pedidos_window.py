@@ -1,40 +1,47 @@
-# ui/pedidos_window.py
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QScrollArea, QGridLayout, QFrame, QPushButton, QTableWidget,
-    QTableWidgetItem, QHeaderView, QMessageBox
+    QTableWidgetItem, QHeaderView, QMessageBox, QApplication
 )
 from PySide6.QtCore import Qt
+
 from utils.db_session import get_session
 from services.catalogo_service import CatalogoService
 from services.pedido_service import PedidoService
 
 
 class PedidosWindow(QWidget):
-    def __init__(self, usuario, parent=None):
-        super().__init__(parent)
+    """Pantalla principal de pedidos."""
+
+    def __init__(self, usuario):
+        super().__init__(None)  # ← SIN PARENT, independiente SIEMPRE
         self.usuario = usuario
 
+        print(">>> INICIANDO PedidosWindow...")
+
+        # Ventana real independiente
+        self.setWindowFlag(Qt.Window)
+        self.setWindowModality(Qt.NonModal)
+
         self.setWindowTitle("SAMAR-POS | Nueva Orden")
-        self.resize(1200, 700)
         self.setStyleSheet(open("ui/theme_dark.qss", "r", encoding="utf-8").read())
+        self.resize(1200, 700)
+        self.setMinimumSize(900, 600)
 
-        # ⬛ Corrección CRÍTICA: layout sin self
-        layout = QHBoxLayout()
-        self.setLayout(layout)
+        layout = QHBoxLayout(self)
 
-        # === PANEL IZQUIERDO ===
+        # ============================
+        # PANEL IZQUIERDO
+        # ============================
         left_panel = QVBoxLayout()
 
         lbl_buscar = QLabel("Buscar producto:")
         self.input_buscar = QLineEdit()
-        self.input_buscar.setPlaceholderText("Ejemplo: pizza, bebida...")
         self.input_buscar.textChanged.connect(self.buscar_producto)
 
         left_panel.addWidget(lbl_buscar)
         left_panel.addWidget(self.input_buscar)
 
-        # Scroll de productos
         self.scroll = QScrollArea()
         self.scroll.setWidgetResizable(True)
 
@@ -44,7 +51,9 @@ class PedidosWindow(QWidget):
         self.scroll.setWidget(self.grid_widget)
         left_panel.addWidget(self.scroll)
 
-        # === PANEL DERECHO ===
+        # ============================
+        # PANEL DERECHO
+        # ============================
         right_panel = QVBoxLayout()
 
         self.lbl_pedido = QLabel("Pedido temporal")
@@ -61,55 +70,53 @@ class PedidosWindow(QWidget):
         self.lbl_total.setAlignment(Qt.AlignRight)
         right_panel.addWidget(self.lbl_total)
 
-        self.btn_guardar = QPushButton("💾 Guardar Pedido (F5)")
-        self.btn_guardar.setObjectName("btnPrimary")
-        self.btn_guardar.clicked.connect(self.guardar_pedido)
-        right_panel.addWidget(self.btn_guardar)
+        btn_guardar = QPushButton("💾 Guardar Pedido (F5)")
+        btn_guardar.setObjectName("btnPrimary")
+        btn_guardar.clicked.connect(self.guardar_pedido)
+        right_panel.addWidget(btn_guardar)
 
         layout.addLayout(left_panel, 2)
         layout.addLayout(right_panel, 1)
 
-        # Datos internos
+        # ESTADO INTERNO
         self.productos = []
         self.items_pedido = []
         self.total = 0.0
 
-        # Centrar la ventana
-        self._center_on_screen()
-
+        print(">>> Cargando productos…")
         self.cargar_productos()
+        print(">>> Productos cargados correctamente.")
 
-    # === Centrado ===
-    def _center_on_screen(self):
-        screen = self.screen().availableGeometry()
-        self.move(
-            screen.center().x() - self.width() // 2,
-            screen.center().y() - self.height() // 2
-        )
+        self.centrar_ventana()
+        print(">>> PedidosWindow inicializado OK.")
 
-    # === Productos ===
+    # -----------------------------------------------------------
+    def centrar_ventana(self):
+        screen = QApplication.primaryScreen().geometry()
+        x = max(0, screen.width()//2 - self.width()//2)
+        y = max(0, screen.height()//2 - self.height()//2)
+        self.move(x, y)
+        print(f">>> Ventana centrada en: {x}, {y}")
+
+    # -----------------------------------------------------------
     def cargar_productos(self):
-        """Carga todos los productos activos de la base."""
         with get_session() as db:
             svc = CatalogoService(db)
             self.productos = svc.listar()
 
-        # Limpia grid
         for i in reversed(range(self.grid_layout.count())):
-            item = self.grid_layout.itemAt(i)
-            if item:
-                item.widget().deleteLater()
+            w = self.grid_layout.itemAt(i).widget()
+            if w:
+                w.deleteLater()
 
-        # Muestra productos
         for i, prod in enumerate(self.productos):
             card = self.crear_tarjeta_producto(prod)
             self.grid_layout.addWidget(card, i // 3, i % 3)
 
+    # -----------------------------------------------------------
     def crear_tarjeta_producto(self, producto):
-        """Crea una tarjeta visual para cada producto."""
         card = QFrame()
         card.setObjectName("card")
-
         vbox = QVBoxLayout(card)
 
         lbl_nombre = QLabel(f"<b>{producto['nombre']}</b>")
@@ -122,24 +129,21 @@ class PedidosWindow(QWidget):
         vbox.addWidget(lbl_nombre)
         vbox.addWidget(lbl_precio)
         vbox.addWidget(btn_add)
-
         return card
 
-    # === Buscar ===
+    # -----------------------------------------------------------
     def buscar_producto(self):
-        texto = self.input_buscar.text().strip().lower()
+        texto = self.input_buscar.text().lower()
         for i, prod in enumerate(self.productos):
             card = self.grid_layout.itemAt(i).widget()
-            visible = texto in prod["nombre"].lower() or texto == ""
-            card.setVisible(visible)
+            card.setVisible(texto in prod["nombre"].lower() or not texto)
 
-    # === Agregar item ===
+    # -----------------------------------------------------------
     def agregar_item(self, producto):
         self.items_pedido.append(producto)
 
         row = self.tbl_items.rowCount()
         self.tbl_items.insertRow(row)
-
         self.tbl_items.setItem(row, 0, QTableWidgetItem(producto["nombre"]))
         self.tbl_items.setItem(row, 1, QTableWidgetItem("1"))
         self.tbl_items.setItem(row, 2, QTableWidgetItem(f"${float(producto['precio']):.2f}"))
@@ -147,23 +151,36 @@ class PedidosWindow(QWidget):
         self.total += float(producto["precio"])
         self.lbl_total.setText(f"Total: ${self.total:.2f}")
 
-    # === Guardar ===
+    # -----------------------------------------------------------
     def guardar_pedido(self):
         if not self.items_pedido:
             QMessageBox.warning(self, "Pedido vacío", "Agrega al menos un producto.")
             return
+
+        from ui.cobro_window import CobroWindow
 
         with get_session() as db:
             svc = PedidoService(db)
             pedido = svc.nuevo(self.usuario["id"])
 
             for p in self.items_pedido:
-                svc.agregar_item(pedido.id, p["id"], 1, p["precio"])
+                svc.agregar_item(pedido.id, p["id"], 1, float(p["precio"]))
 
-            svc.calcular_totales(pedido.id)
+            pedido = svc.calcular_totales(pedido.id)
 
-        QMessageBox.information(self, "Guardado", "Pedido registrado correctamente.")
-        self.tbl_items.setRowCount(0)
-        self.items_pedido.clear()
-        self.total = 0.0
-        self.lbl_total.setText("Total: $0.00")
+            pedido_dict = {
+                "id": pedido.id,
+                "folio": pedido.folio,
+                "subtotal": float(pedido.subtotal),
+                "total": float(pedido.total),
+                "pagado": pedido.pagado
+            }
+
+        # Cerrar ventana actual
+        self.close()
+
+        # Abrir cobro SIN parent
+        self.cobro = CobroWindow(pedido_dict)
+        self.cobro.show()
+        self.cobro.raise_()
+        self.cobro.activateWindow()

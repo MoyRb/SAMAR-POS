@@ -1,10 +1,7 @@
-# models/usuario.py
 from sqlalchemy import Column, BigInteger, String, Boolean, ForeignKey, TIMESTAMP, DateTime
 from sqlalchemy.orm import relationship
-from utils.db_session import engine
-from sqlalchemy.orm import declarative_base
+from utils.database import Base   # <── USAR Base central
 
-Base = declarative_base()
 
 class Rol(Base):
     __tablename__ = "roles"
@@ -13,6 +10,7 @@ class Rol(Base):
     nombre = Column(String(32), unique=True, nullable=False)
     descripcion = Column(String(120))
     usuarios = relationship("Usuario", back_populates="rol")
+
 
 class Usuario(Base):
     __tablename__ = "usuarios"
