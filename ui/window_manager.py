@@ -18,6 +18,7 @@ from PySide6.QtWidgets import QApplication, QWidget
 MAIN_WINDOW: Optional[QWidget] = None
 PEDIDOS_WINDOW: Optional[QWidget] = None
 KDS_WINDOW: Optional[QWidget] = None
+CORTE_WINDOW: Optional[QWidget] = None
 CURRENT_USER = None
 _SHORTCUT_FILTER: Optional[QObject] = None
 
@@ -40,7 +41,7 @@ def _attach_lifecycle(window: QWidget, attr_name: str):
 def _focus_window(target: QWidget):
     """Muestra la ventana destino y oculta las demás conocidas."""
 
-    for win in [MAIN_WINDOW, PEDIDOS_WINDOW, KDS_WINDOW]:
+    for win in [MAIN_WINDOW, PEDIDOS_WINDOW, KDS_WINDOW, CORTE_WINDOW]:
         if win is None or win is target:
             continue
         win.hide()
@@ -80,6 +81,16 @@ def get_or_create_kds_window():
     return KDS_WINDOW
 
 
+def get_or_create_corte_window():
+    global CORTE_WINDOW
+    if CORTE_WINDOW is None:
+        from ui.corte_window import CorteWindow
+
+        CORTE_WINDOW = CorteWindow(CURRENT_USER)
+        _attach_lifecycle(CORTE_WINDOW, "CORTE_WINDOW")
+    return CORTE_WINDOW
+
+
 def show_main_window():
     _focus_window(get_or_create_main_window())
 
@@ -92,6 +103,10 @@ def show_kds_window():
     _focus_window(get_or_create_kds_window())
 
 
+def show_corte_window():
+    _focus_window(get_or_create_corte_window())
+
+
 class _ShortcutFilter(QObject):
     """Filtro de eventos global para atajos de teclado."""
 
@@ -102,6 +117,9 @@ class _ShortcutFilter(QObject):
                 return True
             if event.key() == Qt.Key_F2:
                 show_kds_window()
+                return True
+            if event.key() == Qt.Key_F3:
+                show_corte_window()
                 return True
         return super().eventFilter(obj, event)
 

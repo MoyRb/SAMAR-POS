@@ -51,6 +51,7 @@ class MainWindow(QMainWindow):
 
         btn_corte = QPushButton("💵 Corte Diario (F3)")
         btn_corte.setObjectName("btnPrimary")
+        btn_corte.clicked.connect(self.abrir_corte)
         botones.addWidget(btn_corte)
 
         layout.addLayout(botones)
@@ -72,6 +73,23 @@ class MainWindow(QMainWindow):
 
         except Exception:
             print("\n🔥🔥🔥 ERROR AL ABRIR PEDIDOS 🔥🔥🔥\n")
+            traceback.print_exc()
+            print("\n---------------------------------------\n")
+
+    def abrir_corte(self):
+        try:
+            print("\n=== Intentando abrir CorteWindow ===\n")
+
+            wm.show_corte_window()
+
+            print(">>> CorteWindow se abrió correctamente.\n")
+
+        except Exception as e:
+            print("\n🔥 ERROR AL ABRIR CORTE 🔥\n")
+            print(e)
+
+        except Exception:
+            print("\n🔥🔥🔥 ERROR AL ABRIR CORTE 🔥🔥🔥\n")
             traceback.print_exc()
             print("\n---------------------------------------\n")
 
