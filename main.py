@@ -1,7 +1,7 @@
 # main.py
 import sys
 from PySide6.QtWidgets import QApplication, QMessageBox
-from utils.db_session import test_connection
+from utils.db_session import init_db, test_connection
 from ui.login_window import LoginWindow
 
 APP_TITLE = "SAMAR-POS — Punto de Venta y Operación"
@@ -18,15 +18,16 @@ def main():
     except FileNotFoundError:
         print("[WARN] No se encontró el archivo de estilos 'theme_dark.qss'.")
 
-    # --- Verifica conexión a la base de datos ---
+    # --- Verifica conexión y prepara la base de datos ---
     try:
         test_connection()
-        print("✅ Conexión a la base de datos establecida.")
+        init_db()
+        print("✅ Conexión a la base de datos establecida y esquema verificado.")
     except Exception as e:
         QMessageBox.critical(
             None,
             "Error de conexión",
-            f"No se pudo conectar a la base de datos.\n\nDetalle:\n{e}",
+            f"No se pudo conectar a la base de datos o crear el esquema.\n\nDetalle:\n{e}",
         )
         sys.exit(1)
 
