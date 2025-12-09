@@ -71,8 +71,8 @@ class PedidosWindow(QWidget):
         self.lbl_pedido.setObjectName("logoTitle")
         right_panel.addWidget(self.lbl_pedido)
 
-        self.tbl_items = QTableWidget(0, 3)
-        self.tbl_items.setHorizontalHeaderLabels(["Producto", "Cantidad", "Precio"])
+        self.tbl_items = QTableWidget(0, 4)
+        self.tbl_items.setHorizontalHeaderLabels(["Producto", "Cantidad", "Precio", ""])
         self.tbl_items.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         right_panel.addWidget(self.tbl_items)
 
@@ -160,7 +160,39 @@ class PedidosWindow(QWidget):
         self.tbl_items.setItem(row, 1, QTableWidgetItem("1"))
         self.tbl_items.setItem(row, 2, QTableWidgetItem(f"${float(producto['precio']):.2f}"))
 
-        self.total += float(producto["precio"])
+        btn_quitar = QPushButton("🗑 Quitar")
+        btn_quitar.setObjectName("btnSecondary")
+        btn_quitar.clicked.connect(lambda _, b=btn_quitar: self.eliminar_item_desde_boton(b))
+        self.tbl_items.setCellWidget(row, 3, btn_quitar)
+
+        self.recalcular_total()
+
+    # -----------------------------------------------------------
+    def eliminar_item_desde_boton(self, boton):
+        index = self.tbl_items.indexAt(boton.parent().pos())
+        if not index.isValid():
+            return
+
+        row = index.row()
+
+        if 0 <= row < len(self.items_pedido):
+            eliminado = self.items_pedido.pop(row)
+            self.tbl_items.removeRow(row)
+            self.recalcular_total()
+
+    # -----------------------------------------------------------
+    def recalcular_total(self):
+        total = 0.0
+        for i, producto in enumerate(self.items_pedido):
+            cantidad_item = self.tbl_items.item(i, 1)
+            try:
+                cantidad = int(cantidad_item.text()) if cantidad_item else 1
+            except ValueError:
+                cantidad = 1
+
+            total += float(producto["precio"]) * cantidad
+
+        self.total = total
         self.lbl_total.setText(f"Total: ${self.total:.2f}")
 
     # -----------------------------------------------------------
