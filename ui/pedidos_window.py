@@ -13,9 +13,10 @@ from services.pedido_service import PedidoService
 class PedidosWindow(QWidget):
     """Pantalla principal de pedidos."""
 
-    def __init__(self, usuario):
+    def __init__(self, usuario, on_close=None):
         super().__init__(None)  # ← SIN PARENT, independiente SIEMPRE
         self.usuario = usuario
+        self.on_close = on_close
 
         print(">>> INICIANDO PedidosWindow...")
 
@@ -89,6 +90,11 @@ class PedidosWindow(QWidget):
 
         self.centrar_ventana()
         print(">>> PedidosWindow inicializado OK.")
+
+    def closeEvent(self, event):
+        if self.on_close:
+            self.on_close()
+        event.accept()
 
     # -----------------------------------------------------------
     def centrar_ventana(self):

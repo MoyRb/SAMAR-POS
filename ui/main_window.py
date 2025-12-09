@@ -5,6 +5,8 @@ from PySide6.QtGui import QKeySequence, QShortcut
 import traceback
 
 from ui.pedidos_window import PedidosWindow
+from ui.kds_window import KdsWindow
+from ui.corte_window import CorteWindow
 
 
 class MainWindow(QMainWindow):
@@ -40,10 +42,12 @@ class MainWindow(QMainWindow):
 
         btn_kds = QPushButton("🍳 Cocina (F2)")
         btn_kds.setObjectName("btnPrimary")
+        btn_kds.clicked.connect(self.abrir_kds)
         botones.addWidget(btn_kds)
 
         btn_corte = QPushButton("💵 Corte Diario (F3)")
         btn_corte.setObjectName("btnPrimary")
+        btn_corte.clicked.connect(self.abrir_corte)
         botones.addWidget(btn_corte)
 
         layout.addLayout(botones)
@@ -51,12 +55,14 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central)
 
         QShortcut(QKeySequence("F1"), self, activated=self.abrir_pedidos)
+        QShortcut(QKeySequence("F2"), self, activated=self.abrir_kds)
+        QShortcut(QKeySequence("F3"), self, activated=self.abrir_corte)
 
     def abrir_pedidos(self):
         try:
             print("\n=== Intentando abrir PedidosWindow ===\n")
 
-            self.pedidos_window = PedidosWindow(self.usuario)
+            self.pedidos_window = PedidosWindow(self.usuario, on_close=self.show)
             self.pedidos_window.show()
             self.pedidos_window.raise_()
             self.pedidos_window.activateWindow()
@@ -73,6 +79,44 @@ class MainWindow(QMainWindow):
 
         except Exception:
             print("\n🔥🔥🔥 ERROR AL ABRIR PEDIDOS 🔥🔥🔥\n")
+            traceback.print_exc()
+            print("\n---------------------------------------\n")
+            self.show()
+
+    def abrir_kds(self):
+        try:
+            print("\n=== Intentando abrir KdsWindow ===\n")
+
+            self.kds_window = KdsWindow(self.usuario, on_close=self.show)
+            self.kds_window.show()
+            self.kds_window.raise_()
+            self.kds_window.activateWindow()
+
+            print(">>> KdsWindow se abrió correctamente.\n")
+
+            self.hide()
+
+        except Exception:
+            print("\n🔥🔥🔥 ERROR AL ABRIR KDS 🔥🔥🔥\n")
+            traceback.print_exc()
+            print("\n---------------------------------------\n")
+            self.show()
+
+    def abrir_corte(self):
+        try:
+            print("\n=== Intentando abrir CorteWindow ===\n")
+
+            self.corte_window = CorteWindow(self.usuario, on_close=self.show)
+            self.corte_window.show()
+            self.corte_window.raise_()
+            self.corte_window.activateWindow()
+
+            print(">>> CorteWindow se abrió correctamente.\n")
+
+            self.hide()
+
+        except Exception:
+            print("\n🔥🔥🔥 ERROR AL ABRIR CORTE 🔥🔥🔥\n")
             traceback.print_exc()
             print("\n---------------------------------------\n")
             self.show()

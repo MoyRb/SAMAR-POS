@@ -19,12 +19,10 @@ Sistema de punto de venta y operación para pizzería con flujos de salón y rep
    APP_ENV=development
    ```
    De no existir, se usará una base SQLite local (`samar_pos.db`).
-3. Inicializa la base: desde un intérprete Python ejecuta:
-   ```python
-   from utils.database import engine, Base
-   import models  # asegura el registro de todos los modelos
-   Base.metadata.create_all(engine)
-   ```
+3. La aplicación crea automáticamente las tablas y un usuario administrador si no existen.
+   - Usuario: `admin` (editable con `ADMIN_DEFAULT_USERNAME`)
+   - Contraseña: `admin` (editable con `ADMIN_DEFAULT_PASSWORD`)
+   - Si quieres forzar un reinicio de contraseña (útil cuando olvidaste la clave en tu BD local), define `ADMIN_FORCE_RESET=true` al iniciar la app.
 
 ## Uso rápido
 - Ejecuta la aplicación de escritorio:
