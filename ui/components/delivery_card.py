@@ -7,7 +7,6 @@ class DeliveryCard(QFrame):
         super().__init__()
         self.reparto = reparto
         self.pedido = reparto.pedido
-        self.cliente = getattr(self.pedido, "cliente", None)
         self.on_cambiar_estado = on_cambiar_estado
         self.setObjectName("card")
 
@@ -21,8 +20,8 @@ class DeliveryCard(QFrame):
         layout.addLayout(header)
 
         layout.addWidget(self._label_line(f"#{self.pedido.folio or self.pedido.id}", bold=True, size=16))
-        layout.addWidget(self._label_line(self._cliente_text()))
         layout.addWidget(self._label_line(self._direccion_text()))
+        layout.addWidget(self._label_line(self._canal_text()))
 
         extra = QHBoxLayout()
         extra.addWidget(self._label_line(f"Repartidor: {self.reparto.repartidor or 'Sin asignar'}"))
@@ -31,7 +30,11 @@ class DeliveryCard(QFrame):
         layout.addLayout(extra)
 
         footer = QHBoxLayout()
-        footer.addWidget(self._label_line(self._telefono_text()))
+        envio_text = self._envio_text()
+        if envio_text:
+            footer.addWidget(self._label_line(envio_text))
+        else:
+            footer.addStretch()
         footer.addStretch()
         footer.addWidget(self._label_line(self._total_texto(), bold=True))
         layout.addLayout(footer)
@@ -57,18 +60,12 @@ class DeliveryCard(QFrame):
         lbl.setFont(font)
         return lbl
 
-    def _cliente_text(self):
-        if self.cliente:
-            return f"Cliente: {self.cliente.nombre}"
-        return "Cliente: Sin datos"
-
-    def _telefono_text(self):
-        if self.cliente and self.cliente.telefono:
-            return f"Tel: {self.cliente.telefono}"
-        return "Tel: -"
+    def _canal_text(self):
+        canal = getattr(self.pedido, "canal", "SALON") or "SALON"
+        return f"Canal: {canal.title()}"
 
     def _direccion_text(self):
-        direccion = self.pedido.direccion_entrega or (self.cliente.direccion if self.cliente else None)
+        direccion = self.pedido.direccion_entrega
         return f"Dirección: {direccion or 'No especificada'}"
 
     def _total_texto(self):
@@ -77,6 +74,16 @@ class DeliveryCard(QFrame):
 
     def _pago_texto(self):
         return "Pagado" if self.pedido.pagado else "Pendiente"
+
+    def _envio_text(self):
+        try:
+            costo_envio = float(self.pedido.envio or 0)
+        except (TypeError, ValueError):
+            return ""
+
+        if costo_envio <= 0:
+            return ""
+        return f"Envío: ${costo_envio:,.2f}"
 
     def _estado_color(self):
         colores = {
