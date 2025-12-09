@@ -1,3 +1,6 @@
+## models/bitacora.py
+# Modelo ORM para registrar eventos de auditoría o bitácora generados por los
+# servicios.
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, TIMESTAMP, ForeignKey
 from sqlalchemy.orm import relationship

@@ -1,3 +1,6 @@
+## models/pedido.py
+# Definiciones ORM para pedidos, sus partidas, y los repartos asociados que
+# permiten seguir el flujo desde la captura hasta la entrega.
 from datetime import datetime
 from sqlalchemy import (
     Column,

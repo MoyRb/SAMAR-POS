@@ -1,4 +1,6 @@
-# services/pedido_service.py
+## services/pedido_service.py
+# Servicio principal para crear pedidos, agregar items, calcular totales y
+# registrar pagos manteniendo la trazabilidad mediante bitácora de eventos.
 from sqlalchemy.orm import Session
 from datetime import datetime
 import random

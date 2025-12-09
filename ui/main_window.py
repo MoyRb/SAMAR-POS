@@ -1,4 +1,5 @@
-# ui/main_window.py
+## ui/main_window.py
+# Ventana principal que agrupa accesos rápidos a los módulos del sistema.
 from PySide6.QtWidgets import (
     QMainWindow,
     QWidget,

@@ -1,4 +1,5 @@
-"""Servicios de Kitchen Display System (KDS)."""
+## services/kds_service.py
+"""Coordinador del Kitchen Display System para consultar y actualizar pedidos."""
 from sqlalchemy.orm import Session, selectinload
 from models.pedido import Pedido, PedidoItem
 from services.pedido_service import PedidoService

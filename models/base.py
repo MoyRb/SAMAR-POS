@@ -1,3 +1,4 @@
+## models/base.py
 """Declarative Base única para todos los modelos."""
 from sqlalchemy.orm import declarative_base
 

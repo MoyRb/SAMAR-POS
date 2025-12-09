@@ -1,3 +1,5 @@
+## ui/cobro_window.py
+# Widget que gestiona el cobro de pedidos mostrando totales y capturando pago.
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QLineEdit,
     QPushButton, QMessageBox, QHBoxLayout

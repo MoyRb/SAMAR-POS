@@ -1,3 +1,6 @@
+## models/producto.py
+# Modelos ORM para categorías, tamaños, ingredientes y productos que componen el
+# catálogo de ventas.
 from sqlalchemy import Column, Integer, String, DECIMAL, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 

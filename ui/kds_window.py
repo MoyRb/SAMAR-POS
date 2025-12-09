@@ -1,3 +1,4 @@
+## ui/kds_window.py
 """Panel Kitchen Display System (KDS) para cocina."""
 from PySide6.QtWidgets import (
     QWidget,

@@ -1,11 +1,15 @@
 """Sesiones de base de datos y utilidades."""
 from sqlalchemy.orm import sessionmaker
+## utils/db_session.py
+# Gestiona la sesión de SQLAlchemy, inicializa el esquema y prepara datos demo
+# para permitir arrancar el sistema sin configuración adicional.
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 import contextlib
 
 from utils.database import engine
 from models.base import Base
+from sqlalchemy.orm import sessionmaker
 
 SessionLocal = sessionmaker(
     autocommit=False,

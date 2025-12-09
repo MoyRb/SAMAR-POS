@@ -1,3 +1,4 @@
+## utils/logger.py
 """Logger central con persistencia en bitácora."""
 from loguru import logger
 

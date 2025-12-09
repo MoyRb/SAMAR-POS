@@ -1,3 +1,5 @@
+## models/pago.py
+# Modelo ORM de pagos registrados por pedido, vinculados a cortes de caja.
 from datetime import datetime
 from sqlalchemy import Column, Integer, DECIMAL, Enum, TIMESTAMP, ForeignKey, Boolean, String
 from sqlalchemy.orm import relationship

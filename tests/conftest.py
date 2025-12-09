@@ -1,4 +1,6 @@
 import importlib
+## tests/conftest.py
+# Configura fixtures de Pytest y un engine en memoria para pruebas aisladas.
 from pathlib import Path
 import sys
 import pytest

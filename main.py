@@ -1,4 +1,7 @@
-# main.py
+## main.py
+# Punto de entrada de la aplicación Qt que inicializa la interfaz, aplica el tema
+# oscuro y asegura la conexión a la base de datos antes de mostrar la ventana de
+# inicio de sesión.
 import sys
 from PySide6.QtWidgets import QApplication, QMessageBox
 from utils.db_session import init_db, test_connection

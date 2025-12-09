@@ -1,11 +1,8 @@
-# ui/window_manager.py
-"""Administrador de ventanas y atajos globales.
+## ui/window_manager.py
+"""Administra la creación y el ciclo de vida de las ventanas Qt.
 
-Se encarga de:
-- Mantener referencias a las ventanas principales.
-- Crear ventanas bajo demanda reutilizando la sesión del usuario.
-- Instalar un filtro de eventos para que los atajos F1/F2 funcionen en
-  cualquier pantalla.
+Incluye un filtro de eventos para permitir atajos globales como F1/F2 desde
+cualquier pantalla y reusa instancias abiertas para evitar duplicados.
 """
 
 from functools import partial
