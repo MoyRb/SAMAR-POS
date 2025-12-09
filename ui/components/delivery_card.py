@@ -1,13 +1,14 @@
-from PySide6.QtWidgets import QLabel, QFrame, QVBoxLayout, QHBoxLayout
+from PySide6.QtWidgets import QLabel, QFrame, QVBoxLayout, QHBoxLayout, QPushButton, QSpacerItem, QSizePolicy
 from PySide6.QtCore import Qt
 
 
 class DeliveryCard(QFrame):
-    def __init__(self, reparto):
+    def __init__(self, reparto, on_cambiar_estado=None):
         super().__init__()
         self.reparto = reparto
         self.pedido = reparto.pedido
         self.cliente = getattr(self.pedido, "cliente", None)
+        self.on_cambiar_estado = on_cambiar_estado
         self.setObjectName("card")
 
         layout = QVBoxLayout(self)
@@ -34,6 +35,10 @@ class DeliveryCard(QFrame):
         footer.addStretch()
         footer.addWidget(self._label_line(self._total_texto(), bold=True))
         layout.addLayout(footer)
+
+        acciones = self._acciones_layout()
+        if acciones:
+            layout.addLayout(acciones)
 
     # helpers -------------------------------------------------
     def _pill(self, text, color, text_color="#f8fafc"):
@@ -81,3 +86,29 @@ class DeliveryCard(QFrame):
             "DEVUELTO": "#ef4444",
         }
         return colores.get(self.reparto.estado, "#475569")
+
+    def _acciones_layout(self):
+        if not self.on_cambiar_estado:
+            return None
+
+        acciones = QHBoxLayout()
+        estado = self.reparto.estado
+
+        def add_btn(texto, destino, estilo="btnPrimary"):
+            btn = QPushButton(texto)
+            btn.setObjectName(estilo)
+            btn.clicked.connect(lambda: self.on_cambiar_estado(self.reparto, destino))
+            acciones.addWidget(btn)
+
+        if estado == "ASIGNADO":
+            add_btn("🚚 En ruta", "EN_RUTA")
+        elif estado == "EN_RUTA":
+            add_btn("✅ Entregado", "ENTREGADO")
+            add_btn("↩️ Devuelto", "DEVUELTO", "btnSecondary")
+        elif estado == "ENTREGADO":
+            add_btn("↩️ En ruta", "EN_RUTA", "btnSecondary")
+        elif estado == "DEVUELTO":
+            add_btn("🚚 Reintentar", "EN_RUTA")
+
+        acciones.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        return acciones
