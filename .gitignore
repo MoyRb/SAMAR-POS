@@ -7,6 +7,8 @@ __pycache__/
 logs/
 # Configuración local
 config.py
+# Base de datos local
+*.db
 # Archivos de build
 build/
 dist/
