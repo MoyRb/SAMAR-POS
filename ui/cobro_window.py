@@ -24,10 +24,28 @@ class CobroWindow(QWidget):
         layout = QVBoxLayout(self)
         layout.setSpacing(20)
 
+        canal = pedido_dict.get("canal", "SALON")
+        if canal == "DOMICILIO":
+            direccion = pedido_dict.get("direccion") or "Sin dirección"
+            repartidor = pedido_dict.get("repartidor") or "Sin asignar"
+
+            lbl_canal = QLabel(f"Canal: Domicilio • Repartidor: {repartidor}")
+            lbl_canal.setAlignment(Qt.AlignCenter)
+            layout.addWidget(lbl_canal)
+
+            lbl_direccion = QLabel(f"Entrega: {direccion}")
+            lbl_direccion.setWordWrap(True)
+            layout.addWidget(lbl_direccion)
+
         self.lbl_total = QLabel(f"Total a pagar: <b>${self.pedido['total']:.2f}</b>")
         self.lbl_total.setAlignment(Qt.AlignCenter)
         self.lbl_total.setObjectName("logoTitle")
         layout.addWidget(self.lbl_total)
+
+        if canal == "DOMICILIO" and pedido_dict.get("envio"):
+            lbl_envio = QLabel(f"Incluye envío de ${float(pedido_dict['envio']):.2f}")
+            lbl_envio.setAlignment(Qt.AlignCenter)
+            layout.addWidget(lbl_envio)
 
         layout.addWidget(QLabel("Efectivo recibido:"))
         self.input_efectivo = QLineEdit()

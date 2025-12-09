@@ -18,7 +18,17 @@ class PedidoService:
     # ------------------------------
     # 1. CREAR PEDIDO
     # ------------------------------
-    def nuevo(self, usuario_id, canal="SALON", mesa=None, cliente_id=None, envio=0, propina=0):
+    def nuevo(
+        self,
+        usuario_id,
+        canal="SALON",
+        mesa=None,
+        cliente_id=None,
+        envio=0,
+        propina=0,
+        direccion_entrega=None,
+        telefono_contacto=None,
+    ):
         folio = f"PED-{random.randint(10000, 99999)}"
 
         pedido = Pedido(
@@ -28,6 +38,8 @@ class PedidoService:
             cliente_id=cliente_id,
             envio=envio,
             propina=propina,
+            direccion_entrega=direccion_entrega,
+            telefono_contacto=telefono_contacto,
             creado_por=usuario_id,
             creado_en=datetime.now(),
             subtotal=0,

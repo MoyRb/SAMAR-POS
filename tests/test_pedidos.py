@@ -30,3 +30,7 @@ def test_flujo_pedido_reparto_y_corte(db_session):
     corte = corte_service.abrir_caja(usuario.id)
     cierre = corte_service.cerrar_caja(corte.id, usuario.id)
     assert float(cierre.total_efectivo) > 0
+
+    resumen = corte_service.resumen_repartidores_y_salon()
+    assert resumen["repartidores"].get("Luis", 0) > 0
+    assert resumen["salon"] == 0
