@@ -64,3 +64,35 @@ class CorteService:
         self.db.commit()
         log_event(None, "LIQUIDACION", f"Corte {corte_id} liquidado por {responsable}")
         return liquidacion
+
+    def resumen_repartidores_y_salon(self):
+        """Retorna totales cobrados por repartidor y por ventas en salón.
+
+        Agrupa los pagos por repartidor únicamente para pedidos de domicilio
+        y calcula el total cobrado en salón para dar visibilidad durante el
+        corte de caja.
+        """
+        from models.pedido import Pedido, Reparto
+        from models.pago import Pago
+
+        repartos = (
+            self.db.query(Reparto.repartidor, func.sum(Pago.importe - Pago.cambio))
+            .join(Pedido, Pedido.id == Reparto.pedido_id)
+            .join(Pago, Pago.pedido_id == Pedido.id)
+            .filter(Pedido.canal == "DOMICILIO")
+            .group_by(Reparto.repartidor)
+            .all()
+        )
+
+        salon = (
+            self.db.query(func.sum(Pago.importe - Pago.cambio))
+            .join(Pedido, Pedido.id == Pago.pedido_id)
+            .filter(Pedido.canal == "SALON")
+            .scalar()
+            or 0
+        )
+
+        return {
+            "repartidores": {nombre: float(total or 0) for nombre, total in repartos},
+            "salon": float(salon or 0),
+        }
