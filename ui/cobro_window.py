@@ -5,14 +5,15 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 from utils.db_session import get_session
 from services.pedido_service import PedidoService
-from ui.main_window import MainWindow
 
 
 class CobroWindow(QWidget):
     """Ventana de cobro independiente."""
-    def __init__(self, pedido_dict):
+    def __init__(self, pedido_dict, pedidos_window=None):
         super().__init__(None)  # ← Ventana independiente SIEMPRE
         self.pedido = pedido_dict
+        self.pedidos_window = pedidos_window
+        self.pagado = False
 
         self.setWindowFlag(Qt.Window)
         self.setWindowModality(Qt.NonModal)
@@ -98,9 +99,25 @@ class CobroWindow(QWidget):
             svc.finalizar(self.pedido["id"])
 
         QMessageBox.information(self, "Listo", "Pago registrado correctamente.")
-
+        self.pagado = True
+        self._volver_a_pedidos(resetear=True)
         self.close()
 
-        from ui.main_window import MainWindow
-        self.menu = MainWindow({"id": 1, "nombre": "Admin", "rol_id": 1})
-        self.menu.show()
+    # --------------------
+    def _volver_a_pedidos(self, resetear=False):
+        if not self.pedidos_window:
+            return
+
+        if resetear and hasattr(self.pedidos_window, "resetear_formulario"):
+            self.pedidos_window.resetear_formulario()
+
+        self.pedidos_window.show()
+        self.pedidos_window.raise_()
+        self.pedidos_window.activateWindow()
+
+    # --------------------
+    def closeEvent(self, event):
+        # Si se canceló el pago, regresa a la pantalla de pedidos con los datos intactos.
+        if not self.pagado:
+            self._volver_a_pedidos(resetear=False)
+        super().closeEvent(event)

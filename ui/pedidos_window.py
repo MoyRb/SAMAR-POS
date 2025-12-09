@@ -21,6 +21,9 @@ class PedidosWindow(QWidget):
 
         print(">>> INICIANDO PedidosWindow...")
 
+        # Eliminar la instancia cuando se cierre para evitar reutilizar datos viejos
+        self.setAttribute(Qt.WA_DeleteOnClose, True)
+
         # Ventana real independiente
         self.setWindowFlag(Qt.Window)
         self.setWindowModality(Qt.NonModal)
@@ -157,6 +160,30 @@ class PedidosWindow(QWidget):
 
         self.centrar_ventana()
         print(">>> PedidosWindow inicializado OK.")
+
+    # -----------------------------------------------------------
+    def resetear_formulario(self):
+        """Limpia todos los campos para iniciar un nuevo pedido."""
+        self.items_pedido.clear()
+        self.tbl_items.setRowCount(0)
+
+        self.input_buscar.clear()
+        self.input_calle.clear()
+        self.input_localidad.clear()
+        self.input_numero.clear()
+        self.input_referencias.clear()
+        self.input_repartidor.clear()
+        self.input_envio.clear()
+
+        self.radio_salon.setChecked(True)
+
+        self.envio = 0.0
+        self.total = 0.0
+        self.lbl_envio.setText("Envío: $0.00")
+        self.lbl_total.setText("Total: $0.00")
+        self.lbl_pedido.setText("Pedido temporal")
+
+        self.actualizar_tipo_pedido()
 
     # -----------------------------------------------------------
     def centrar_ventana(self):
@@ -372,11 +399,11 @@ class PedidosWindow(QWidget):
                 "repartidor": reparto.repartidor if reparto else None,
             }
 
-        # Cerrar ventana actual
-        self.close()
+        # Ocultar ventana actual mientras se realiza el cobro
+        self.hide()
 
-        # Abrir cobro SIN parent
-        self.cobro = CobroWindow(pedido_dict)
+        # Abrir cobro SIN parent y enlazar para limpiar el formulario al terminar
+        self.cobro = CobroWindow(pedido_dict, pedidos_window=self)
         self.cobro.show()
         self.cobro.raise_()
         self.cobro.activateWindow()
