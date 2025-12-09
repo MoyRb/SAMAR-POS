@@ -8,6 +8,7 @@ from PySide6.QtCore import Qt
 from utils.db_session import get_session
 from services.catalogo_service import CatalogoService
 from services.pedido_service import PedidoService
+from ui.components.add_product_dialog import AddProductDialog
 
 
 class PedidosWindow(QWidget):
@@ -35,11 +36,20 @@ class PedidosWindow(QWidget):
         # ============================
         left_panel = QVBoxLayout()
 
+        header_row = QHBoxLayout()
         lbl_buscar = QLabel("Buscar producto:")
-        self.input_buscar = QLineEdit()
-        self.input_buscar.textChanged.connect(self.buscar_producto)
+        header_row.addWidget(lbl_buscar, 1)
 
-        left_panel.addWidget(lbl_buscar)
+        self.btn_nuevo_producto = QPushButton("➕ Añadir producto")
+        self.btn_nuevo_producto.setObjectName("btnSecondary")
+        self.btn_nuevo_producto.clicked.connect(self.abrir_dialogo_producto)
+        header_row.addWidget(self.btn_nuevo_producto)
+
+        left_panel.addLayout(header_row)
+
+        self.input_buscar = QLineEdit()
+        self.input_buscar.setPlaceholderText("Escribe para filtrar por nombre…")
+        self.input_buscar.textChanged.connect(self.buscar_producto)
         left_panel.addWidget(self.input_buscar)
 
         self.scroll = QScrollArea()
@@ -113,6 +123,8 @@ class PedidosWindow(QWidget):
             card = self.crear_tarjeta_producto(prod)
             self.grid_layout.addWidget(card, i // 3, i % 3)
 
+        self.buscar_producto()
+
     # -----------------------------------------------------------
     def crear_tarjeta_producto(self, producto):
         card = QFrame()
@@ -150,6 +162,35 @@ class PedidosWindow(QWidget):
 
         self.total += float(producto["precio"])
         self.lbl_total.setText(f"Total: ${self.total:.2f}")
+
+    # -----------------------------------------------------------
+    def abrir_dialogo_producto(self):
+        dialog = AddProductDialog(self)
+        if not dialog.exec():
+            return
+
+        data = dialog.obtener_datos()
+        try:
+            with get_session() as db:
+                svc = CatalogoService(db)
+                svc.crear_producto(
+                    nombre=data["nombre"],
+                    precio=data["precio"],
+                    categoria_nombre=data["categoria"],
+                )
+
+            QMessageBox.information(
+                self,
+                "Producto guardado",
+                f"{data['nombre']} agregado al catálogo.",
+            )
+            self.cargar_productos()
+        except Exception as exc:
+            QMessageBox.critical(
+                self,
+                "Error al guardar",
+                f"No se pudo crear el producto.\n{exc}",
+            )
 
     # -----------------------------------------------------------
     def guardar_pedido(self):

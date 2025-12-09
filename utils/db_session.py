@@ -22,6 +22,49 @@ def _register_models():
     import models.bitacora  # noqa: F401
 
 
+def _bootstrap_catalogo(session):
+    """Crea categorías, tamaños y productos demo si la tabla está vacía."""
+    from models.producto import Categoria, Tamano, Producto
+
+    if session.query(Producto).count() > 0:
+        return
+
+    pizzas = session.query(Categoria).filter_by(nombre="Pizzas").first()
+    bebidas = session.query(Categoria).filter_by(nombre="Bebidas").first()
+    postres = session.query(Categoria).filter_by(nombre="Postres").first()
+
+    if not pizzas:
+        pizzas = Categoria(nombre="Pizzas", descripcion="Favoritas del horno")
+        session.add(pizzas)
+    if not bebidas:
+        bebidas = Categoria(nombre="Bebidas", descripcion="Refrescos y cafés")
+        session.add(bebidas)
+    if not postres:
+        postres = Categoria(nombre="Postres", descripcion="Algo dulce para cerrar")
+        session.add(postres)
+
+    chica = session.query(Tamano).filter_by(nombre="Chica").first()
+    grande = session.query(Tamano).filter_by(nombre="Grande").first()
+    if not chica:
+        chica = Tamano(nombre="Chica", diametro_cm=25, factor_precio=1)
+        session.add(chica)
+    if not grande:
+        grande = Tamano(nombre="Grande", diametro_cm=35, factor_precio=1.5)
+        session.add(grande)
+
+    session.flush()
+
+    demo_productos = [
+        Producto(nombre="Margarita Clásica", categoria=pizzas, tamano=chica, precio_base=120, es_pizza=True),
+        Producto(nombre="Pepperoni", categoria=pizzas, tamano=grande, precio_base=190, es_pizza=True),
+        Producto(nombre="Refresco Lata", categoria=bebidas, precio_base=25, es_pizza=False),
+        Producto(nombre="Café Americano", categoria=bebidas, precio_base=30, es_pizza=False),
+        Producto(nombre="Pay de Queso", categoria=postres, precio_base=65, es_pizza=False),
+    ]
+
+    session.add_all(demo_productos)
+
+
 def init_db():
     """Crea tablas y datos mínimos si no existen.
 
@@ -58,6 +101,7 @@ def init_db():
             )
             session.add(admin_user)
 
+        _bootstrap_catalogo(session)
         session.commit()
 
 @contextlib.contextmanager
