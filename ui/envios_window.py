@@ -5,8 +5,8 @@ from PySide6.QtWidgets import (
     QLabel,
     QPushButton,
     QScrollArea,
-    QGridLayout,
     QFrame,
+    QMessageBox,
 )
 from PySide6.QtCore import Qt
 
@@ -22,7 +22,6 @@ class EnviosWindow(QWidget):
         super().__init__(None)
         self.usuario = usuario
         self.repartos = []
-        self.estado_actual = None
 
         self.setWindowFlag(Qt.Window)
         self.setWindowModality(Qt.NonModal)
@@ -39,49 +38,77 @@ class EnviosWindow(QWidget):
         titulo.setObjectName("logoTitle")
         header.addWidget(titulo)
         header.addStretch()
-        root.addLayout(header)
 
-        self.btn_filtros = {}
-        filtros_layout = QHBoxLayout()
-        filtros_layout.setSpacing(8)
-        for texto, estado in [
-            ("Todos", None),
-            ("En ruta", "EN_RUTA"),
-            ("Entregado", "ENTREGADO"),
-            ("Devuelto", "DEVUELTO"),
-        ]:
-            btn = QPushButton(texto)
-            btn.setCheckable(True)
-            btn.setObjectName("btnSecondary")
-            btn.clicked.connect(lambda checked, e=estado: self.cambiar_filtro(e))
-            filtros_layout.addWidget(btn)
-            self.btn_filtros[estado] = btn
-        filtros_layout.addStretch()
-        root.addLayout(filtros_layout)
+        btn_refrescar = QPushButton("🔄 Actualizar")
+        btn_refrescar.setObjectName("btnSecondary")
+        btn_refrescar.clicked.connect(self.refrescar_tablero)
+        header.addWidget(btn_refrescar)
+        root.addLayout(header)
 
         self.resumen_label = QLabel("Cargando envíos…")
         root.addWidget(self.resumen_label)
 
-        self.scroll = QScrollArea()
-        self.scroll.setWidgetResizable(True)
-        self.scroll_content = QFrame()
-        self.grid = QGridLayout(self.scroll_content)
-        self.grid.setSpacing(12)
-        self.scroll.setWidget(self.scroll_content)
-        root.addWidget(self.scroll, 1)
+        columnas_layout = QHBoxLayout()
+        columnas_layout.setSpacing(16)
 
-        self.cambiar_filtro(None)
+        self.columnas = {
+            "ASIGNADO": self._crear_columna("Asignado"),
+            "EN_RUTA": self._crear_columna("En ruta"),
+            "ENTREGADO": self._crear_columna("Entregado"),
+            "DEVUELTO": self._crear_columna("Devuelto"),
+        }
 
-    # ------------------------------------------------------------------
-    def cambiar_filtro(self, estado):
-        for est, btn in self.btn_filtros.items():
-            btn.setChecked(est == estado)
-        self.estado_actual = estado
+        for columna in self.columnas.values():
+            columnas_layout.addWidget(columna["container"], 1)
+
+        root.addLayout(columnas_layout)
+
         self.refrescar_tablero()
 
     # ------------------------------------------------------------------
+    def _crear_columna(self, titulo):
+        caja = QFrame()
+        layout = QVBoxLayout(caja)
+        layout.setSpacing(10)
+
+        header = QLabel(titulo)
+        header.setAlignment(Qt.AlignCenter)
+        header.setStyleSheet("font-weight: 700; font-size: 15px;")
+        layout.addWidget(header)
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        contenido = QFrame()
+        contenido_layout = QVBoxLayout(contenido)
+        contenido_layout.setSpacing(12)
+        contenido_layout.addStretch()
+        scroll.setWidget(contenido)
+
+        layout.addWidget(scroll)
+
+        return {
+            "container": caja,
+            "layout": contenido_layout,
+        }
+
+    # ------------------------------------------------------------------
+    def limpiar_columna(self, columna):
+        layout = columna["layout"]
+        for i in reversed(range(layout.count())):
+            item = layout.itemAt(i)
+            widget = item.widget()
+            if widget:
+                widget.setParent(None)
+                widget.deleteLater()
+
+    # ------------------------------------------------------------------
     def refrescar_tablero(self):
-        self.cargar_datos()
+        try:
+            self.cargar_datos()
+        except Exception as exc:
+            QMessageBox.critical(self, "Error", f"No se pudieron cargar los envíos:\n{exc}")
+            return
+
         self.pintar_resumen()
         self.construir_tarjetas()
 
@@ -89,7 +116,7 @@ class EnviosWindow(QWidget):
     def cargar_datos(self):
         with get_session() as db:
             svc = RepartoService(db)
-            self.repartos = svc.listar(self.estado_actual)
+            self.repartos = svc.listar()
             self.resumen = svc.resumen_por_estado()
 
     # ------------------------------------------------------------------
@@ -97,6 +124,7 @@ class EnviosWindow(QWidget):
         total = sum(self.resumen.values())
         resumen_txt = (
             f"Total envíos: {total} | "
+            f"Asignados: {self.resumen.get('ASIGNADO', 0)} | "
             f"En ruta: {self.resumen.get('EN_RUTA', 0)} | "
             f"Entregados: {self.resumen.get('ENTREGADO', 0)} | "
             f"Devueltos: {self.resumen.get('DEVUELTO', 0)}"
@@ -105,21 +133,33 @@ class EnviosWindow(QWidget):
 
     # ------------------------------------------------------------------
     def construir_tarjetas(self):
-        for i in reversed(range(self.grid.count())):
-            item = self.grid.itemAt(i)
-            widget = item.widget()
-            if widget:
-                widget.setParent(None)
+        for columna in self.columnas.values():
+            self.limpiar_columna(columna)
 
         if not self.repartos:
-            vacio = QLabel("No hay envíos con este filtro.")
-            vacio.setAlignment(Qt.AlignCenter)
-            self.grid.addWidget(vacio, 0, 0)
+            for columna in self.columnas.values():
+                columna["layout"].insertWidget(
+                    columna["layout"].count() - 1,
+                    QLabel("Sin envíos en esta sección"),
+                )
             return
 
-        columnas = 3
-        for idx, reparto in enumerate(self.repartos):
-            fila = idx // columnas
-            col = idx % columnas
-            tarjeta = DeliveryCard(reparto)
-            self.grid.addWidget(tarjeta, fila, col)
+        for reparto in self.repartos:
+            columna = self.columnas.get(reparto.estado)
+            if not columna:
+                continue
+
+            tarjeta = DeliveryCard(reparto, on_cambiar_estado=self.cambiar_estado_reparto)
+            columna["layout"].insertWidget(columna["layout"].count() - 1, tarjeta)
+
+    # ------------------------------------------------------------------
+    def cambiar_estado_reparto(self, reparto, nuevo_estado):
+        try:
+            with get_session() as db:
+                svc = RepartoService(db)
+                svc.cambiar_estado(reparto.id, nuevo_estado)
+        except Exception as exc:
+            QMessageBox.critical(self, "Error", f"No se pudo actualizar el envío:\n{exc}")
+            return
+
+        self.refrescar_tablero()
