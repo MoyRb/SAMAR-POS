@@ -1,4 +1,6 @@
-# services/catalogo_service.py
+## services/catalogo_service.py
+# Lógica de negocio para consultar, buscar y crear productos dentro del catálogo
+# respetando las relaciones de categoría y tamaño.
 from sqlalchemy.orm import Session
 from models.producto import Categoria, Producto, Tamano
 

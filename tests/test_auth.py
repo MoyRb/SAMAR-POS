@@ -1,3 +1,5 @@
+## tests/test_auth.py
+# Valida autenticación y comprobación de permisos sobre el servicio de auth.
 from services.auth_service import AuthService
 from models.usuario import Usuario, Rol
 

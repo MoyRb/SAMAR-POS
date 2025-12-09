@@ -1,3 +1,5 @@
+## ui/corte_window.py
+# Interfaz para abrir, cerrar y resumir cortes de caja.
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,

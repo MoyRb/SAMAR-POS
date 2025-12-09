@@ -1,9 +1,9 @@
-"""Configuración centralizada de la aplicación.
+## utils/settings.py
+"""Lee variables de entorno y aplica valores por defecto seguros.
 
-Este módulo lee variables de entorno y ofrece valores por defecto seguros
-para desarrollo y pruebas. Si existe un archivo `.env` en el directorio
-raíz, se cargan sus pares `CLAVE=valor` de manera sencilla para no
-introducir dependencias adicionales.
+El módulo permite cargar un archivo `.env` sin dependencias adicionales y
+exponer la configuración como dataclass para ser reutilizada en cualquier
+componente de la aplicación.
 """
 from __future__ import annotations
 

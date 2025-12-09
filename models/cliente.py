@@ -1,3 +1,5 @@
+## models/cliente.py
+# Modelo ORM de clientes que guarda datos de contacto y vínculos con pedidos.
 from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.orm import relationship
 

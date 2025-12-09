@@ -1,3 +1,5 @@
+## ui/pedidos_window.py
+# Ventana para capturar y gestionar pedidos dentro del flujo de ventas.
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QScrollArea, QGridLayout, QFrame, QPushButton, QTableWidget,

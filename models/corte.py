@@ -1,3 +1,6 @@
+## models/corte.py
+# Modelos ORM que representan cortes de caja, asociación de pagos y registros de
+# liquidación entregados.
 from datetime import datetime
 from sqlalchemy import Column, Integer, DECIMAL, TIMESTAMP, ForeignKey, String
 from sqlalchemy.orm import relationship

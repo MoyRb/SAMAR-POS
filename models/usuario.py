@@ -1,3 +1,6 @@
+## models/usuario.py
+# Modelos ORM para roles y usuarios, incluyendo método auxiliar para validar
+# permisos configurados.
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, TIMESTAMP, DateTime
 from sqlalchemy.orm import relationship
 from datetime import datetime

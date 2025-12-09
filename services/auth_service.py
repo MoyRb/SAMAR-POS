@@ -1,4 +1,6 @@
-# services/auth_service.py
+## services/auth_service.py
+# Encapsula autenticación de usuarios verificando contraseñas y permisos antes
+# de acceder a la aplicación.
 from sqlalchemy.orm import Session
 from passlib.hash import bcrypt
 from models.usuario import Usuario

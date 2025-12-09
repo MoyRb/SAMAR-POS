@@ -1,3 +1,5 @@
+## tests/test_catalogo.py
+# Prueba los modelos de catálogo asegurando relaciones entre productos e ingredientes.
 from models.producto import Categoria, Tamano, Producto, Ingrediente, ProductoIngrediente
 
 

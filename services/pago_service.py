@@ -1,4 +1,5 @@
-"""Servicios para registrar pagos y cierres parciales."""
+## services/pago_service.py
+"""Servicios para registrar pagos asociados a pedidos y consultarlos."""
 from sqlalchemy.orm import Session
 from models.pago import Pago
 from utils.logger import log_event

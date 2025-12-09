@@ -1,4 +1,5 @@
-# ui/login_window.py
+## ui/login_window.py
+# Ventana de autenticación inicial que valida credenciales y abre el panel.
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,

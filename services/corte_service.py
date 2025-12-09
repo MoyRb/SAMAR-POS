@@ -1,4 +1,5 @@
-"""Servicios de apertura/cierre y corte de caja."""
+## services/corte_service.py
+"""Servicios para abrir y cerrar caja, consolidar pagos y registrar liquidaciones."""
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import datetime

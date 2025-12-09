@@ -1,3 +1,5 @@
+## ui/envios_window.py
+# Ventana dedicada a la asignación y seguimiento de envíos y repartidores.
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,

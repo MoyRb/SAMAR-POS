@@ -1,4 +1,5 @@
-"""Servicios para gestionar envíos y repartos."""
+## services/reparto_service.py
+"""Servicios para gestionar envíos y repartos, incluyendo listados y estados."""
 from typing import List, Optional
 
 from sqlalchemy import func

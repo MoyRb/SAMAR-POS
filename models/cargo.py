@@ -1,3 +1,6 @@
+## models/cargo.py
+# Modelo de cargos extra aplicables a pedidos, con configuraciones de importe y
+# reglas de envío.
 from sqlalchemy import Column, Integer, String, DECIMAL, Boolean
 
 from models.base import Base

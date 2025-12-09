@@ -1,3 +1,5 @@
+## tests/test_pedidos.py
+# Prueba integrada del flujo de pedidos con reparto, cobro y cierre de caja.
 from services.pedido_service import PedidoService
 from services.corte_service import CorteService
 from models.producto import Producto, Categoria, Tamano
