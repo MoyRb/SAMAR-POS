@@ -1,10 +1,10 @@
-# utils/db_session.py
+"""Sesiones de base de datos y utilidades."""
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 import contextlib
 
-from utils.database import engine   # <--- engine central
+from utils.database import engine
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
