@@ -12,7 +12,11 @@ class KDSService:
     def pedidos_pendientes(self):
         return (
             self.db.query(Pedido)
-            .filter(Pedido.estado.in_(["EN_COLA", "PREPARACION", "EN_HORNO"]))
+            .filter(
+                Pedido.estado.in_(
+                    ["EN_COLA", "PREPARACION", "EN_HORNO", "LISTO"]
+                )
+            )
             .order_by(Pedido.creado_en.asc())
             .all()
         )

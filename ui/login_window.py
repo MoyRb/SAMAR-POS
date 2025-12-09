@@ -1,7 +1,16 @@
 # ui/login_window.py
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton,
-    QCheckBox, QMessageBox, QHBoxLayout, QSpacerItem, QSizePolicy
+    QApplication,
+    QWidget,
+    QVBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QCheckBox,
+    QMessageBox,
+    QHBoxLayout,
+    QSpacerItem,
+    QSizePolicy,
 )
 from PySide6.QtCore import Qt
 from services.auth_service import AuthService
@@ -76,11 +85,9 @@ class LoginWindow(QWidget):
                 usuario_data = None
 
         if usuario_data:
-            from ui.main_window import MainWindow
-
-            wm.MAIN_WINDOW = MainWindow(usuario_data)
-            wm.MAIN_WINDOW.show()
-
+            wm.set_user(usuario_data)
+            wm.install_global_shortcuts(QApplication.instance())
+            wm.show_main_window()
             self.close()
         else:
             QMessageBox.critical(self, "Error", "Usuario o contraseña incorrectos.")
