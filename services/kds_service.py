@@ -1,6 +1,6 @@
 """Servicios de Kitchen Display System (KDS)."""
-from sqlalchemy.orm import Session
-from models.pedido import Pedido
+from sqlalchemy.orm import Session, selectinload
+from models.pedido import Pedido, PedidoItem
 from services.pedido_service import PedidoService
 
 
@@ -12,6 +12,10 @@ class KDSService:
     def pedidos_pendientes(self):
         return (
             self.db.query(Pedido)
+            .options(
+                selectinload(Pedido.items).selectinload(PedidoItem.producto),
+                selectinload(Pedido.items).selectinload(PedidoItem.tamano),
+            )
             .filter(
                 Pedido.estado.in_(
                     ["EN_COLA", "PREPARACION", "EN_HORNO", "LISTO"]
