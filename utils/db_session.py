@@ -7,7 +7,12 @@ import contextlib
 from utils.database import engine
 from models.base import Base
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine,
+    expire_on_commit=False,
+)
 
 
 def _register_models():
