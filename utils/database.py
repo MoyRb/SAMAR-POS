@@ -1,24 +1,27 @@
-# utils/database.py
-from sqlalchemy.orm import declarative_base
+"""Conexión a base de datos usando SQLAlchemy."""
 from sqlalchemy import create_engine
 from sqlalchemy.pool import QueuePool
 
-# ---- CONFIGURACIÓN DEL ENGINE ----
-DB_USER = "root"
-DB_PASS = "Marlen17"
-DB_HOST = "localhost"
-DB_NAME = "samar_pos"
+from models.base import Base
+from utils.settings import get_settings
 
-DB_URL = f"mysql+mysqlconnector://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}?charset=utf8mb4"
+settings = get_settings()
 
-engine = create_engine(
-    DB_URL,
-    poolclass=QueuePool,
-    pool_size=5,
-    max_overflow=10,
-    pool_recycle=3600,
-    echo=True
-)
+# Configura el engine en función del URL: SQLite usa connect_args simples
+if settings.database_url.startswith("sqlite"):
+    engine = create_engine(
+        settings.database_url,
+        connect_args={"check_same_thread": False},
+        echo=settings.db_echo,
+    )
+else:
+    engine = create_engine(
+        settings.database_url,
+        poolclass=QueuePool,
+        pool_size=settings.db_pool_size,
+        max_overflow=settings.db_max_overflow,
+        pool_recycle=3600,
+        echo=settings.db_echo,
+    )
 
-# ---- BASE ÚNICA PARA TODOS LOS MODELOS ----
-Base = declarative_base()
+__all__ = ["engine", "Base"]
