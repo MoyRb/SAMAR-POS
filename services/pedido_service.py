@@ -144,7 +144,8 @@ class PedidoService:
     def finalizar(self, pedido_id):
         pedido = self.db.query(Pedido).filter_by(id=pedido_id).first()
         pedido.pagado = True
-        pedido.estado = "CERRADO"
+        pedido.estado = "EN_COLA"
+        pedido.actualizado_en = datetime.now()
         self.db.commit()
         return pedido
 
