@@ -1,11 +1,16 @@
 # ui/main_window.py
-from PySide6.QtWidgets import QMainWindow, QWidget, QPushButton, QVBoxLayout, QLabel, QHBoxLayout
+from PySide6.QtWidgets import (
+    QMainWindow,
+    QWidget,
+    QPushButton,
+    QVBoxLayout,
+    QLabel,
+    QHBoxLayout,
+)
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QKeySequence, QShortcut
 import traceback
 
-from ui.pedidos_window import PedidosWindow
-from ui.kds_window import KDSWindow
+import ui.window_manager as wm
 
 
 class MainWindow(QMainWindow):
@@ -52,54 +57,37 @@ class MainWindow(QMainWindow):
         central.setLayout(layout)
         self.setCentralWidget(central)
 
-        QShortcut(QKeySequence("F1"), self, activated=self.abrir_pedidos)
-        QShortcut(QKeySequence("F2"), self, activated=self.abrir_kds)
-
     def abrir_pedidos(self):
         try:
             print("\n=== Intentando abrir PedidosWindow ===\n")
 
-            self.pedidos_window = PedidosWindow(self.usuario)
-            self.pedidos_window.show()
-            self.pedidos_window.raise_()
-            self.pedidos_window.activateWindow()
+            wm.show_pedidos_window()
 
             print(">>> PedidosWindow se abrió correctamente.\n")
-
-            self.hide()
 
         except Exception as e:
             print("\n🔥 ERROR AL ABRIR PEDIDOS 🔥\n")
             print(e)
-            self.show()
 
 
         except Exception:
             print("\n🔥🔥🔥 ERROR AL ABRIR PEDIDOS 🔥🔥🔥\n")
             traceback.print_exc()
             print("\n---------------------------------------\n")
-            self.show()
 
     def abrir_kds(self):
         try:
             print("\n=== Intentando abrir KDSWindow ===\n")
 
-            self.kds_window = KDSWindow(self.usuario)
-            self.kds_window.show()
-            self.kds_window.raise_()
-            self.kds_window.activateWindow()
+            wm.show_kds_window()
 
             print(">>> KDSWindow se abrió correctamente.\n")
-
-            self.hide()
 
         except Exception as e:
             print("\n🔥 ERROR AL ABRIR KDS 🔥\n")
             print(e)
-            self.show()
 
         except Exception:
             print("\n🔥🔥🔥 ERROR AL ABRIR KDS 🔥🔥🔥\n")
             traceback.print_exc()
             print("\n---------------------------------------\n")
-            self.show()
