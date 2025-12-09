@@ -54,6 +54,11 @@ class MainWindow(QMainWindow):
         btn_corte.clicked.connect(self.abrir_corte)
         botones.addWidget(btn_corte)
 
+        btn_envios = QPushButton("🚚 Envíos (F4)")
+        btn_envios.setObjectName("btnPrimary")
+        btn_envios.clicked.connect(self.abrir_envios)
+        botones.addWidget(btn_envios)
+
         layout.addLayout(botones)
         central.setLayout(layout)
         self.setCentralWidget(central)
@@ -90,6 +95,23 @@ class MainWindow(QMainWindow):
 
         except Exception:
             print("\n🔥🔥🔥 ERROR AL ABRIR CORTE 🔥🔥🔥\n")
+            traceback.print_exc()
+            print("\n---------------------------------------\n")
+
+    def abrir_envios(self):
+        try:
+            print("\n=== Intentando abrir EnviosWindow ===\n")
+
+            wm.show_envios_window()
+
+            print(">>> EnviosWindow se abrió correctamente.\n")
+
+        except Exception as e:
+            print("\n🔥 ERROR AL ABRIR ENVIOS 🔥\n")
+            print(e)
+
+        except Exception:
+            print("\n🔥🔥🔥 ERROR AL ABRIR ENVIOS 🔥🔥🔥\n")
             traceback.print_exc()
             print("\n---------------------------------------\n")
 
