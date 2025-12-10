@@ -142,6 +142,7 @@ class PedidosWindow(QWidget):
 
         btn_guardar = QPushButton("💾 Guardar Pedido (F5)")
         btn_guardar.setObjectName("btnPrimary")
+        btn_guardar.setShortcut(Qt.Key_F5)
         btn_guardar.clicked.connect(self.guardar_pedido)
         right_panel.addWidget(btn_guardar)
 

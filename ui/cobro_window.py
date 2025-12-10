@@ -2,7 +2,7 @@
 # Widget que gestiona el cobro de pedidos mostrando totales y capturando pago.
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QLineEdit,
-    QPushButton, QMessageBox, QHBoxLayout
+    QPushButton, QMessageBox, QHBoxLayout, QRadioButton, QButtonGroup
 )
 from PySide6.QtCore import Qt
 from utils.db_session import get_session
@@ -50,6 +50,24 @@ class CobroWindow(QWidget):
             lbl_envio.setAlignment(Qt.AlignCenter)
             layout.addWidget(lbl_envio)
 
+        metodo_layout = QHBoxLayout()
+        metodo_layout.addWidget(QLabel("Método de pago:"))
+
+        self.metodo_group = QButtonGroup(self)
+        self.radio_efectivo = QRadioButton("Efectivo")
+        self.radio_tarjeta = QRadioButton("Tarjeta")
+        self.radio_transferencia = QRadioButton("Transferencia")
+
+        self.radio_efectivo.setChecked(True)
+
+        for btn in (self.radio_efectivo, self.radio_tarjeta, self.radio_transferencia):
+            self.metodo_group.addButton(btn)
+            btn.toggled.connect(self.on_metodo_cambiado)
+            metodo_layout.addWidget(btn)
+
+        metodo_layout.addStretch()
+        layout.addLayout(metodo_layout)
+
         layout.addWidget(QLabel("Efectivo recibido:"))
         self.input_efectivo = QLineEdit()
         self.input_efectivo.textChanged.connect(self.calcular_cambio)
@@ -71,8 +89,14 @@ class CobroWindow(QWidget):
 
         layout.addLayout(btns)
 
+        self.on_metodo_cambiado()
+
     # --------------------
     def calcular_cambio(self):
+        if self.obtener_metodo_pago() != "EFECTIVO":
+            self.lbl_cambio.setText("Cambio: No aplica")
+            return
+
         t = self.input_efectivo.text().strip()
         if not t.replace('.', '', 1).isdigit():
             self.lbl_cambio.setText("Cambio: $0.00")
@@ -84,6 +108,11 @@ class CobroWindow(QWidget):
     # --------------------
     def confirmar_pago(self):
         t = self.input_efectivo.text().strip()
+
+        metodo = self.obtener_metodo_pago()
+
+        if metodo in ("TARJETA", "TRANSFERENCIA") and not t:
+            t = f"{self.pedido['total']:.2f}"
 
         if not t.replace('.', '', 1).isdigit():
             QMessageBox.warning(self, "Monto inválido", "Ingresa un número válido.")
@@ -97,7 +126,7 @@ class CobroWindow(QWidget):
 
         with get_session() as db:
             svc = PedidoService(db)
-            svc.registrar_pago(self.pedido["id"], recibido)
+            svc.registrar_pago(self.pedido["id"], recibido, metodo=metodo)
             svc.finalizar(self.pedido["id"])
 
         QMessageBox.information(self, "Listo", "Pago registrado correctamente.")
@@ -123,3 +152,19 @@ class CobroWindow(QWidget):
         if not self.pagado:
             self._volver_a_pedidos(resetear=False)
         super().closeEvent(event)
+
+    # --------------------
+    def obtener_metodo_pago(self):
+        btn = self.metodo_group.checkedButton()
+        return btn.text().upper() if btn else "EFECTIVO"
+
+    # --------------------
+    def on_metodo_cambiado(self):
+        metodo = self.obtener_metodo_pago()
+        if metodo == "EFECTIVO":
+            self.input_efectivo.setPlaceholderText("Ingresa el efectivo recibido")
+            self.lbl_cambio.setText("Cambio: $0.00")
+            self.calcular_cambio()
+        else:
+            self.input_efectivo.setPlaceholderText("Opcional: monto cobrado")
+            self.lbl_cambio.setText("Cambio: No aplica")
